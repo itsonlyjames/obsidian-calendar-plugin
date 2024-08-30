@@ -47,7 +47,12 @@ export const defaultSettings = Object.freeze({
 export function appHasPeriodicNotesPluginLoaded(): boolean {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const periodicNotes = (<any>window.app).plugins.getPlugin("periodic-notes");
-  return periodicNotes && periodicNotes.settings?.weekly?.enabled;
+  let value;
+  // Use subscription to extract the store value
+  periodicNotes.settings.subscribe((e) => {
+    value = e;
+  })(); // Immediately call the unsubscribe function
+  return periodicNotes && value?.weekly?.enabled;
 }
 
 export class CalendarSettingsTab extends PluginSettingTab {
@@ -68,8 +73,7 @@ export class CalendarSettingsTab extends PluginSettingTab {
         });
         banner.createEl("p", {
           cls: "setting-item-description",
-          text:
-            "The calendar is best used in conjunction with either the Daily Notes plugin or the Periodic Notes plugin (available in the Community Plugins catalog).",
+          text: "The calendar is best used in conjunction with either the Daily Notes plugin or the Periodic Notes plugin (available in the Community Plugins catalog).",
         });
       });
     }
@@ -91,8 +95,7 @@ export class CalendarSettingsTab extends PluginSettingTab {
       });
       this.containerEl.createEl("p", {
         cls: "setting-item-description",
-        text:
-          "Note: Weekly Note settings are moving. You are encouraged to install the 'Periodic Notes' plugin to keep the functionality in the future.",
+        text: "Note: Weekly Note settings are moving. You are encouraged to install the 'Periodic Notes' plugin to keep the functionality in the future.",
       });
       this.addWeeklyNoteFormatSetting();
       this.addWeeklyNoteTemplateSetting();
